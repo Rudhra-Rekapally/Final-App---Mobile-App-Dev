@@ -1,4 +1,3 @@
-
 import Alamofire
 import SwiftUI
 import Kingfisher
@@ -45,26 +44,26 @@ struct Home: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack {
                         
-                        VStack {
-                            
+                        VStack(spacing: 0) {
+
                             Text("Loot of the day")
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .font(.title)
                             
                             
                             ScrollView(.horizontal) {
-                                HStack(alignment: .top) {
+                                LazyHStack(alignment: .top) {
                                     ForEach(data.lootOfTheDay, id: \.dealID) { g in
-                                        GameCell(image: g.thumb, title: g.title, g: g)
+                                        GameCell(game: g)
                                     }
                                 }
                             }
-                            .padding(.top)
+                            .padding(.top, 8)
                         }
                         .padding()
                         
-                        VStack {
-                            
+                        VStack(spacing: 0) {
+
                             HStack {
                                 
                                 Text("Free To Play")
@@ -82,17 +81,17 @@ struct Home: View {
                             }
                             
                             ScrollView(.horizontal) {
-                                HStack {
+                                LazyHStack {
                                     ForEach(data.freeGames, id: \.id) { g in
-                                        GameCell(image: g.thumbnail, title: g.title)
+                                        GameCell(game: g)
                                     }
                                 }
                             }
-                            .padding(.top)
+                            .padding(.top, 8)
                         }
                         .padding()
                         
-                        VStack {
+                        VStack(spacing: 0) {
                             
                             HStack {
                                 
@@ -113,13 +112,43 @@ struct Home: View {
                             ScrollView(.horizontal) {
                                 HStack(alignment: .top) {
                                     ForEach(data.onSaleGames, id: \.dealID) { g in
-                                        GameCell(image: g.thumb, title: g.title, g: g)
+                                        GameCell(game: g)
                                     }
                                 }
                             }
-                            .padding(.top)
+                            .padding(.top, 5)
                         }
                         .padding()
+                        
+                        VStack(spacing: 0) {
+
+                            HStack {
+                                
+                                Text("Upcoming Games")
+                                    .font(.title)
+                                
+                                Spacer()
+                                
+                                NavigationLink {
+                                    UpcomingView()
+                                        .environmentObject(data)
+                                } label: {
+                                    Text("view all")
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            
+                            ScrollView(.horizontal) {
+                                LazyHStack(alignment: .top) {
+                                    ForEach(data.upcomingGames) { g in
+                                        GameCell(game: g)
+                                    }
+                                }
+                            }
+                            .padding(.top, 8)
+                        }
+                        .padding()
+                        
                     }
                     
                     VStack { }.frame(height: 80)
@@ -133,69 +162,79 @@ struct Home: View {
 
 #Preview {
     Home(selection: .constant(1))
+        .environmentObject(DataManager())
         .preferredColorScheme(.dark)
 }
 
-struct GameCell: View {
+struct GameCell<G: Game>: View {
     
-    let image: String
-    let title: String
-    let g: SaleGameInfo?
-    
-    @State var rating: Float = 2
-    
-    init(image: String, title: String, g: SaleGameInfo? = nil) {
-        self.image = image
-        self.title = title
-        self.g = g
-    }
+    let game: G
     
     var body: some View {
-        VStack(alignment: .leading) {
-            KFImage(URL(string: image)!)
-                .resizable()
-                .scaledToFit()
-                .cornerRadius(10)
-                .frame(width: 150, height: 165)
-            
-            Text("base game".uppercased())
-                .font(.system(size: 12, weight: .semibold))
-                .fixedSize(horizontal: false, vertical: true)
-                .foregroundStyle(.gray)
-            
-            Text(title)
-            
-            if let g {
-                HStack {
-                    Text("-\(Double(g.savings) ?? 0, specifier: "%.0f")%")
-                        .font(.system(size: 12))
-                        .fixedSize()
-                        .padding(5)
-                        .background(Color("purple"))
-                    
-                    Text("$\(g.normalPrice)")
-                        .font(.system(size: 11))
-                        .minimumScaleFactor(0.7)
-                        .fixedSize()
-                        .strikethrough()
-                        .foregroundStyle(.gray)
-                    
-                    Text("$\(g.salePrice)")
-                }
-                .font(.system(size: 12))
-            } else {
-                Text("Free to play")
+        NavigationLink {
+            SingleGameView(game: game)
+                .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+        } label: {
+            VStack(alignment: .leading) {
+                KFImage(URL(string: game.imageURL)!)
+                    .resizable()
+                    .scaledToFit()
+                    .cornerRadius(10)
+                    .frame(width: 150, height: 165)
+                
+                Text("base game".uppercased())
+                    .font(.system(size: 12, weight: .semibold))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundStyle(.gray)
+                
+                Text(game.name)
+                    .multilineTextAlignment(.leading)
+                    .foregroundColor(.white)
+                
+                if let g = game as? SaleGameInfo {
+                    HStack {
+                        Text("-\(Double(g.savings) ?? 0, specifier: "%.0f")%")
+                            .font(.system(size: 12))
+                            .fixedSize()
+                            .padding(5)
+                            .background(Color("purple"))
+                        
+                        Text("$\(g.normalPrice)")
+                            .font(.system(size: 11))
+                            .minimumScaleFactor(0.7)
+                            .fixedSize()
+                            .strikethrough()
+                            .foregroundStyle(.gray)
+                        
+                        Text("$\(g.salePrice)")
+                    }
+                    .font(.system(size: 12))
+                    .foregroundColor(.white)
+                } else if let g = game as? UpcomingGameInfo {
+                    HStack(spacing: 0) {
+                        Text("Coming ")
+                        
+                        Text(g.releaseD, style: .date)
+                    }
                     .font(.system(size: 10, weight: .medium))
                     .minimumScaleFactor(0.7)
                     .fixedSize()
                     .foregroundStyle(.gray)
                     .padding(.top, 4)
+                } else {
+                    Text("Free to play")
+                        .font(.system(size: 10, weight: .medium))
+                        .minimumScaleFactor(0.7)
+                        .fixedSize()
+                        .foregroundStyle(.gray)
+                        .padding(.top, 4)
+                    
+                }
+                
+                StarRatingView(rating: Binding { Float(game.rating) } set: { v in })
+                    .frame(width: 150, height: 20)
             }
-            
-            StarRatingView(rating: Binding { rating } set: { v in })
-                .frame(width: 150, height: 20)
+            .frame(width: 150)
         }
-        .frame(width: 150)
-        .onAppear { rating = Float.random(in: 3.5...4.8) }
     }
 }

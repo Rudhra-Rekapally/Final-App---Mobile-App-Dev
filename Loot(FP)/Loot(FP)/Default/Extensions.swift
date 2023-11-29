@@ -1,10 +1,10 @@
-
 import Combine
 import SwiftUI
 
 // All Color Extensions
 extension Color {
     
+    /// Allowing Initialization From A Hex String
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
@@ -33,7 +33,7 @@ extension Color {
 
 // All Application Extensions
 extension UIApplication {
-  
+    /// The Primary Root View Controller For The Application
     static func controller() -> UIViewController? { shared.windows.first?.rootViewController }
 }
 
@@ -57,12 +57,12 @@ extension InsettableShape {
 // All View Extensions
 extension View {
     
-   
+    /// Get A Corner Radius For A Specific Corner
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape(RoundedCorner(radius: radius, corners: corners))
     }
     
-   
+    /// Listen For Keyboard Changes
     func listenForKeyboard(_ type: KeyboardReadable, isVisible: Binding<Bool>) -> some View {
         onReceive(type.keyboardPublisher) { newIsKeyboardVisible in
             withAnimation { isVisible.wrappedValue = newIsKeyboardVisible }
@@ -70,19 +70,23 @@ extension View {
     }
 }
 
-
+// All CGFloat Extensions
 extension View {
     
+    /// Device Height
     var height: CGFloat { UIScreen.main.bounds.height }
+    
+    /// Device Width
     var width: CGFloat { UIScreen.main.bounds.width }
 }
 
-
+/// Gets Custom Rounded Corner
 struct RoundedCorner: Shape {
 
- 
+    /// The Radius Of The Custom Corner
     var radius: CGFloat
     
+    /// The Corners Included In The Rounded Radius
     var corners: UIRectCorner
     
     // Initialization
@@ -91,6 +95,7 @@ struct RoundedCorner: Shape {
         self.corners = corners
     }
 
+    /// Returning The Corner Radius Path
     func path(in rect: CGRect) -> Path {
         Path(UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius)).cgPath)
     }
@@ -118,4 +123,28 @@ extension KeyboardReadable {
 
 extension Array {
     func choose(_ n: Int) -> ArraySlice<Element> { shuffled().prefix(n) }
+}
+
+extension Date {
+
+    static func - (lhs: Date, rhs: Date) -> TimeInterval {
+        return lhs.timeIntervalSinceReferenceDate - rhs.timeIntervalSinceReferenceDate
+    }
+    
+    var iso8601withFractionalSeconds: String { return Formatter.iso8601withFractionalSeconds.string(from: self) }
+}
+
+extension Formatter {
+    static let iso8601withFractionalSeconds = ISO8601DateFormatter([.withInternetDateTime, .withFractionalSeconds])
+}
+
+extension ISO8601DateFormatter {
+    convenience init(_ formatOptions: Options) {
+        self.init()
+        self.formatOptions = formatOptions
+    }
+}
+
+extension String {
+    var iso8601withFractionalSeconds: Date { Formatter.iso8601withFractionalSeconds.date(from: self)! }
 }

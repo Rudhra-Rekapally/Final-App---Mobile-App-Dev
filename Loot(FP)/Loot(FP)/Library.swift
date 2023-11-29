@@ -1,9 +1,21 @@
-
 import SwiftUI
+import Kingfisher
 
 struct Library: View {
     
+    @Environment(\.managedObjectContext) private var viewContext
+    
     @State var selection = 0
+    
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \WishList.timestamp, ascending: true)],
+        animation: .default)
+    private var wish: FetchedResults<WishList>
+    
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \Owned.timestamp, ascending: true)],
+        animation: .default)
+    private var owned: FetchedResults<Owned>
     
     var body: some View {
         ZStack {
@@ -43,12 +55,108 @@ struct Library: View {
                     if selection == 0 { Spacer() }
                 }
                 
-                ScrollView(.vertical, showsIndicators: false) {
+                TabView(selection: $selection)  {
+                    List {
+                        ForEach(wish) { w in
+                            HStack {
+                                KFImage(w.imageUrl)
+                                    .resizable()
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(Circle())
+                                
+                                VStack(alignment: .leading) {
+                                    Text(w.name ?? "")
+                                    
+                                    if w.price > 0 && w.salePrice > 0 {
+                                        HStack {
+                                            Text("$\(w.price)")
+                                                .strikethrough()
+                                                .foregroundStyle(.gray)
+                                            Text("$" + w.salePrice.description)
+                                                .foregroundStyle(Color("purple"))
+                                        }
+                                        .font(.system(size: 12))
+                                    }
+                                }
+                                .foregroundColor(.white)
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .imageScale(.large)
+                            }
+                            .padding(8)
+                            .listRowBackground(Color.clear)
+                            .foregroundColor(.white)
+                            .padding(.horizontal)
+                        }
+                        .onDelete(perform: deleteWish)
+                    }
+                    .listStyle(.plain)
+                    .tag(0)
                     
+                    List {
+                        ForEach(owned) { w in
+                            HStack {
+                                KFImage(w.imageUrl)
+                                    .resizable()
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(Circle())
+                                
+                                VStack(alignment: .leading) {
+                                    Text(w.name ?? "")
+                                    
+                                    if w.price > 0 && w.salePrice > 0 {
+                                        HStack {
+                                            Text("$\(w.price)")
+                                                .strikethrough()
+                                                .foregroundStyle(.gray)
+                                            Text("$" + w.salePrice.description)
+                                                .foregroundStyle(Color("purple"))
+                                        }
+                                        .font(.system(size: 12))
+                                    }
+                                }
+                                .foregroundColor(.white)
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .imageScale(.large)
+                            }
+                            .padding(8)
+                            .listRowBackground(Color.clear)
+                            .foregroundColor(.white)
+                            .padding(.horizontal)
+                        }
+                        .onDelete(perform: deleteOwned)
+                    }
+                    .listStyle(.plain)
+                    .tag(1)
                 }
+                .scrollContentBackground(.hidden)
+                .tabViewStyle(.page(indexDisplayMode: .never))
             }
         }
-
+        .onAppear {
+              UIScrollView.appearance().isScrollEnabled = false
+        }
+    }
+    
+    private func deleteWish(offsets: IndexSet) {
+        withAnimation {
+            offsets.map { wish[$0] }.forEach(viewContext.delete)
+            
+            try? viewContext.save()
+        }
+    }
+    
+    private func deleteOwned(offsets: IndexSet) {
+        withAnimation {
+            offsets.map { owned[$0] }.forEach(viewContext.delete)
+            
+            try? viewContext.save()
+        }
     }
 }
 

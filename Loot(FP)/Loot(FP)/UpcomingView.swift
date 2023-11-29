@@ -1,7 +1,7 @@
 import Kingfisher
 import SwiftUI
 
-struct OnSaleView: View {
+struct UpcomingView: View {
     @EnvironmentObject var data: DataManager
     
     @State var filter = ""
@@ -12,7 +12,7 @@ struct OnSaleView: View {
                 .ignoresSafeArea()
             
             VStack {
-                Text("On Sale")
+                Text("Upcoming")
                     .font(.system(size: 25, weight: .bold))
                 
                 HStack {
@@ -39,7 +39,7 @@ struct OnSaleView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack {
                         Divider()
-                        ForEach(data.filtered(array: data.onSaleGames), id: \.hashValue) { g in
+                        ForEach(data.filtered(array: data.upcomingGames), id: \.hashValue) { g in
                             NavigationLink {
                                 SingleGameView(game: g.wrappedValue)
                                     .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
@@ -53,14 +53,12 @@ struct OnSaleView: View {
                                     VStack(alignment: .leading) {
                                         Text(g.wrappedValue.name)
                                         
-                                        if let s = g.wrappedValue as? SaleGameInfo {
+                                        if let s = g.wrappedValue as? UpcomingGameInfo {
                                             HStack {
-                                                Text("$\(s.salePrice)")
-                                                    .strikethrough()
-                                                    .foregroundStyle(.gray)
-                                                Text("$" + s.salePrice)
-                                                    .foregroundStyle(Color("purple"))
+                                                Text("Coming")
+                                                Text(s.releaseD, style: .date)
                                             }
+                                            .foregroundStyle(.gray)
                                             .font(.system(size: 12))
                                         }
                                     }

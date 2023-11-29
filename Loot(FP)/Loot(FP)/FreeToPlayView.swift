@@ -1,10 +1,8 @@
-
 import Kingfisher
 import SwiftUI
 
 struct FreeToPlayView: View {
     @EnvironmentObject var data: DataManager
-    @State var filter = ""
     var body: some View {
         ZStack {
             
@@ -20,13 +18,17 @@ struct FreeToPlayView: View {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.black)
                     
-                    TextField("Search", text: $filter)
+                    TextField("Search", text: $data.filterText)
                         .foregroundColor(.black)
                     
                     Spacer()
                     
-                    Image(systemName: "line.3.horizontal.decrease.circle")
-                        .foregroundColor(.black)
+                    Button {
+                        data.showFilterView.toggle()
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .foregroundColor(.black)
+                    }
                 }
                 .padding()
                 .frame(width: width * 0.9, height: 45)
@@ -35,21 +37,27 @@ struct FreeToPlayView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack {
                         Divider()
-                        ForEach(data.freeGames.filter({ $0.title.contains(filter) || filter.isEmpty }), id: \.id) { g in
-                            HStack {
-                                KFImage(URL(string: g.thumbnail))
-                                    .resizable()
-                                    .frame(width: 40, height: 40)
-                                    .clipShape(Circle())
-                                
-                                Text(g.title)
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
-                                    .imageScale(.large)
+                        ForEach(data.filtered(array: data.freeGames), id: \.hashValue) { g in
+                            NavigationLink {
+                                SingleGameView(game: g.wrappedValue)
+                                    .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+                            } label: {
+                                HStack {
+                                    KFImage(URL(string: g.wrappedValue.imageURL))
+                                        .resizable()
+                                        .frame(width: 40, height: 40)
+                                        .clipShape(Circle())
+                                    
+                                    Text(g.wrappedValue.name)
+                                        .foregroundColor(.white)
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .imageScale(.large)
+                                }
+                                .padding(8)
                             }
-                            .padding(8)
                             
                             Divider()
                         }
@@ -59,6 +67,15 @@ struct FreeToPlayView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $data.showFilterView) {
+            Filter()
+                .environmentObject(data)
+        }
+        .onDisappear {
+            data.filterText = ""
+            data.filters = []
+            data.pricePoints = PriceLevel.allCases
+        }
     }
 }
 

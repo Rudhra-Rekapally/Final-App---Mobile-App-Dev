@@ -1,14 +1,9 @@
-
 import SwiftUI
+import ActivityIndicatorView
 import CoreData
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
-
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
     
     @State var selection = 1
     
@@ -21,12 +16,13 @@ struct ContentView: View {
                 Group {
                     switch selection {
                     case 0:
-                        FreeToPlayView()
+                        Search()
                             .environmentObject(data)
                     case 1:
                         Home(selection: $selection)
                     case 2:
                         Library()
+                            .environment(\.managedObjectContext, viewContext)
                     default:
                         Text("")
                     }
@@ -40,7 +36,12 @@ struct ContentView: View {
                         Spacer()
                         
                         Button {
-                            withAnimation { selection = 0 }
+                            print("clicked magnifying")
+//                            withAnimation { 
+                            DispatchQueue.main.async {
+                                selection = 0
+                            }
+//                            }
                         } label: {
                             Image(systemName: "magnifyingglass")
                                 .resizable()
@@ -52,7 +53,12 @@ struct ContentView: View {
                         Spacer()
                         
                         Button {
-                            withAnimation { selection = 1 }
+                            print("clicked house")
+//                            withAnimation { 
+                            DispatchQueue.main.async {
+                                selection = 1
+                            }
+//                            }
                         } label: {
                             Image(systemName: "house.fill")
                                 .resizable()
@@ -64,7 +70,12 @@ struct ContentView: View {
                         Spacer()
                         
                         Button {
-                            withAnimation { selection = 2 }
+                            print("clicked book")
+//                            withAnimation {
+                            DispatchQueue.main.async {
+                                selection = 2
+                            }
+//                            }
                         } label: {
                             Image(systemName: "book")
                                 .resizable()
@@ -77,45 +88,34 @@ struct ContentView: View {
                     }
                     .frame(width: width, height: 100)
                     .background(Color.black.cornerRadius(20, corners: [.topLeft, .topRight]))
+                    
+                    
                 }
                 .ignoresSafeArea()
+                
+                ZStack {
+                    Color("bg")
+                        .ignoresSafeArea()
+                    
+                    ProgressView()
+                }
+                .zIndex(999)
+                .frame(height: data.loading ? nil : 0)
+                .opacity(data.loading ? 1 : 0)
             }
         }
-        .onAppear(perform: data.fetch)
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
-            do {
-                try viewContext.save()
-            } catch {
-              
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
+        .task(data.fetch)
     }
 }
 
-#Preview {
-    ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-        .preferredColorScheme(.dark)
+func unique<S : Sequence, T : Hashable>(source: S) -> [T] where S.Iterator.Element == T {
+    var buffer = [T]()
+    var added = Set<T>()
+    for elem in source {
+        if !added.contains(elem) {
+            buffer.append(elem)
+            added.insert(elem)
+        }
+    }
+    return buffer
 }
