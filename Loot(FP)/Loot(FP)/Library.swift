@@ -49,7 +49,7 @@ struct Library: View {
                     if selection == 1 { Spacer() }
                     
                     Rectangle()
-                        .fill(Color("purple"))
+                        .fill(Color("purple_color"))
                         .frame(width: width * 0.5, height: 5)
                         
                     if selection == 0 { Spacer() }
@@ -73,7 +73,7 @@ struct Library: View {
                                                 .strikethrough()
                                                 .foregroundStyle(.gray)
                                             Text("$" + w.salePrice.description)
-                                                .foregroundStyle(Color("purple"))
+                                                .foregroundStyle(Color("purple_color"))
                                         }
                                         .font(.system(size: 12))
                                     }
@@ -82,8 +82,14 @@ struct Library: View {
                                 
                                 Spacer()
                                 
-                                Image(systemName: "chevron.right")
-                                    .imageScale(.large)
+                                Button {
+                                    guard let i = wish.firstIndex(where: { $0.name == w.name }) else { return }
+                                    deleteWish(offsets: [i])
+                                } label: {
+                                    Image(systemName: "minus.circle")
+                                        .foregroundColor(.red)
+                                        .imageScale(.large)
+                                }
                             }
                             .padding(8)
                             .listRowBackground(Color.clear)
@@ -112,7 +118,7 @@ struct Library: View {
                                                 .strikethrough()
                                                 .foregroundStyle(.gray)
                                             Text("$" + w.salePrice.description)
-                                                .foregroundStyle(Color("purple"))
+                                                .foregroundStyle(Color("purple_color"))
                                         }
                                         .font(.system(size: 12))
                                     }
@@ -121,8 +127,14 @@ struct Library: View {
                                 
                                 Spacer()
                                 
-                                Image(systemName: "chevron.right")
-                                    .imageScale(.large)
+                                Button {
+                                    guard let i = owned.firstIndex(where: { $0.name == w.name }) else { return }
+                                    deleteOwned(offsets: [i])
+                                } label: {
+                                    Image(systemName: "minus.circle")
+                                        .foregroundColor(.red)
+                                        .imageScale(.large)
+                                }
                             }
                             .padding(8)
                             .listRowBackground(Color.clear)

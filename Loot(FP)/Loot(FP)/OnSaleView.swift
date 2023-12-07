@@ -39,42 +39,47 @@ struct OnSaleView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack {
                         Divider()
-                        ForEach(data.filtered(array: data.onSaleGames), id: \.hashValue) { g in
-                            NavigationLink {
-                                SingleGameView(game: g.wrappedValue)
-                                    .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
-                            } label: {
-                                HStack {
-                                    KFImage(URL(string: g.wrappedValue.imageURL))
-                                        .resizable()
-                                        .frame(width: 40, height: 40)
-                                        .clipShape(Circle())
-                                    
-                                    VStack(alignment: .leading) {
-                                        Text(g.wrappedValue.name)
+                        if data.filtered(array: data.onSaleGames).isEmpty {
+                            Text("No Results")
+                        } else {
+                            ForEach(data.filtered(array: data.onSaleGames), id: \.hashValue) { g in
+                                NavigationLink {
+                                    SingleGameView(game: g.wrappedValue)
+                                        .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+                                } label: {
+                                    HStack {
+                                        KFImage(URL(string: g.wrappedValue.imageURL))
+                                            .resizable()
+                                            .frame(width: 40, height: 40)
+                                            .clipShape(Circle())
                                         
-                                        if let s = g.wrappedValue as? SaleGameInfo {
-                                            HStack {
-                                                Text("$\(s.salePrice)")
-                                                    .strikethrough()
-                                                    .foregroundStyle(.gray)
-                                                Text("$" + s.salePrice)
-                                                    .foregroundStyle(Color("purple"))
+                                        VStack(alignment: .leading) {
+                                            Text(g.wrappedValue.name)
+                                            
+                                            if let s = g.wrappedValue as? SaleGameInfo {
+                                                HStack {
+                                                    Text("$\(s.salePrice)")
+                                                        .strikethrough()
+                                                        .foregroundStyle(.gray)
+                                                    Text("$" + s.salePrice)
+                                                        .foregroundStyle(Color("purple_color"))
+                                                }
+                                                .font(.system(size: 12))
                                             }
-                                            .font(.system(size: 12))
                                         }
+                                        .foregroundColor(.white)
+                                        
+                                        Spacer()
+                                        
+                                        Image(systemName: "chevron.right")
+                                            .imageScale(.large)
                                     }
-                                    .foregroundColor(.white)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .imageScale(.large)
+                                    .padding(8)
                                 }
-                                .padding(8)
+                                
+                                Divider()
                             }
-                            
-                            Divider()
+
                         }
                     }
                     .padding()
@@ -88,7 +93,7 @@ struct OnSaleView: View {
         }
         .onDisappear {
             data.filters = []
-            data.pricePoints = PriceLevel.allCases
+            data.pricePoints = nil
         }
     }
 }

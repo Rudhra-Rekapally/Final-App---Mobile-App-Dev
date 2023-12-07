@@ -146,5 +146,5 @@ extension ISO8601DateFormatter {
 }
 
 extension String {
-    var iso8601withFractionalSeconds: Date { Formatter.iso8601withFractionalSeconds.date(from: self)! }
+    var iso8601withFractionalSeconds: Date { Formatter.iso8601withFractionalSeconds.date(from: self) ?? Date() }
 }

@@ -40,38 +40,44 @@ struct Search: View {
                         
                         Divider()
                         
-                        ForEach(data.filtered(array: data.allGames), id: \.hashValue) { g in
-                            NavigationLink {
-                                if let s = g.wrappedValue as? SaleGameInfo {
-                                    SingleGameView(game: s)
-                                        .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
-                                } else if let s = g.wrappedValue as? FreeGameInfo {
-                                    SingleGameView(game: s)
-                                        .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
-                                } else if let s = g.wrappedValue as? UpcomingGameInfo {
-                                    SingleGameView(game: s)
-                                        .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+                        if data.filtered(array: data.allGames).isEmpty {
+                            Text("No Results")
+                                .frame(maxHeight: .infinity)
+                        } else {
+                            ForEach(data.filtered(array: data.allGames), id: \.hashValue) { g in
+                                NavigationLink {
+                                    if let s = g.wrappedValue as? SaleGameInfo {
+                                        SingleGameView(game: s)
+                                            .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+                                    } else if let s = g.wrappedValue as? FreeGameInfo {
+                                        SingleGameView(game: s)
+                                            .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+                                    } else if let s = g.wrappedValue as? UpcomingGameInfo {
+                                        SingleGameView(game: s)
+                                            .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+                                    }
+                                } label: {
+                                    HStack {
+                                        KFImage(URL(string: g.wrappedValue.imageURL))
+                                            .resizable()
+                                            .frame(width: 40, height: 40)
+                                            .clipShape(Circle())
+                                        
+                                        Text(g.wrappedValue.name)
+                                        
+                                        Spacer()
+                                        
+                                        Image(systemName: "chevron.right")
+                                            .imageScale(.large)
+                                    }
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal)
+                                    .padding(8)
                                 }
-                            } label: {
-                                HStack {
-                                    KFImage(URL(string: g.wrappedValue.imageURL))
-                                        .resizable()
-                                        .frame(width: 40, height: 40)
-                                        .clipShape(Circle())
-                                    
-                                    Text(g.wrappedValue.name)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .imageScale(.large)
-                                }
-                                .foregroundColor(.white)
-                                .padding(.horizontal)
-                                .padding(8)
+                                
+                                Divider()
                             }
-                            
-                            Divider()
+
                         }
                     }
                     
@@ -86,7 +92,7 @@ struct Search: View {
         }
         .onDisappear {
             data.filters = []
-            data.pricePoints = PriceLevel.allCases
+            data.pricePoints = nil
         }
     }
 }

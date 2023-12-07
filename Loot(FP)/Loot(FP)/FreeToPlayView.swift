@@ -37,29 +37,34 @@ struct FreeToPlayView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack {
                         Divider()
-                        ForEach(data.filtered(array: data.freeGames), id: \.hashValue) { g in
-                            NavigationLink {
-                                SingleGameView(game: g.wrappedValue)
-                                    .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
-                            } label: {
-                                HStack {
-                                    KFImage(URL(string: g.wrappedValue.imageURL))
-                                        .resizable()
-                                        .frame(width: 40, height: 40)
-                                        .clipShape(Circle())
-                                    
-                                    Text(g.wrappedValue.name)
-                                        .foregroundColor(.white)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .imageScale(.large)
+                        if data.filtered(array: data.freeGames).isEmpty {
+                            Text("No Results")
+                        } else {
+                            ForEach(data.filtered(array: data.freeGames), id: \.hashValue) { g in
+                                NavigationLink {
+                                    SingleGameView(game: g.wrappedValue)
+                                        .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+                                } label: {
+                                    HStack {
+                                        KFImage(URL(string: g.wrappedValue.imageURL))
+                                            .resizable()
+                                            .frame(width: 40, height: 40)
+                                            .clipShape(Circle())
+                                        
+                                        Text(g.wrappedValue.name)
+                                            .foregroundColor(.white)
+                                        
+                                        Spacer()
+                                        
+                                        Image(systemName: "chevron.right")
+                                            .imageScale(.large)
+                                    }
+                                    .padding(8)
                                 }
-                                .padding(8)
+                                
+                                Divider()
                             }
-                            
-                            Divider()
+
                         }
                     }
                     .padding()
@@ -74,7 +79,7 @@ struct FreeToPlayView: View {
         .onDisappear {
             data.filterText = ""
             data.filters = []
-            data.pricePoints = PriceLevel.allCases
+            data.pricePoints = nil
         }
     }
 }

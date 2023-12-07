@@ -72,16 +72,16 @@ struct Filter: View {
                                     Spacer()
                                     Button {
                                         withAnimation {
-                                            if let i = data.pricePoints.firstIndex(of: p) {
-                                                data.pricePoints.remove(at: i)
+                                            if p == data.pricePoints {
+                                                data.pricePoints = nil
                                             } else {
-                                                data.pricePoints.append(p)
+                                                data.pricePoints = p
                                             }
                                         }
                                     } label: {
                                         ZStack {
                                             Circle()
-                                                .fill(data.pricePoints.contains(p) ? Color.accentColor : Color("purple"))
+                                                .fill(data.pricePoints == p ? Color.accentColor : Color("purple_color"))
                                                 .frame(width: 55, height: 55)
                                             
                                             Text(p.rawValue)

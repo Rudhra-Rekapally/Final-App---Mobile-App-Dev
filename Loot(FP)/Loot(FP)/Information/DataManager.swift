@@ -9,7 +9,7 @@ class DataManager: ObservableObject {
     @Published var filters = [FilterType]()
     
     /// The Selected Price Points (By Default All Of Them)
-    @Published var pricePoints = PriceLevel.allCases
+    @Published var pricePoints: PriceLevel? = nil
     
     /// Show The Filter View
     @Published var showFilterView = false
@@ -26,7 +26,7 @@ class DataManager: ObservableObject {
     
     @Sendable func fetch() async {
         await withCheckedContinuation { c in
-            AF.request("https://www.cheapshark.com/api/1.0/deals")
+            AF.request("https://www.cheapshark.com/api/1.0/deals?pageSize=30")
                 .validate()
                 .response { af in
                     guard let data = af.data else { return }
@@ -48,7 +48,7 @@ class DataManager: ObservableObject {
         
         await withCheckedContinuation { c in
             AF.request(
-                "https://video-game-calendar-release.p.rapidapi.com/?limit=50&skip=0",
+                "https://video-game-calendar-release.p.rapidapi.com/?limit=10&skip=0",
                 headers: [
                     "X-RapidAPI-Key": "3a68e252bcmsh2cf99e75f106654p1211b5jsnf5e47120e752",
                     "X-RapidAPI-Host": "video-game-calendar-release.p.rapidapi.com"
@@ -56,7 +56,7 @@ class DataManager: ObservableObject {
             )
             .response { af in
                 guard let data = af.data else { return }
-                self.upcomingGames = Array(try! JSONDecoder().decode(UpcomingGameRes.self, from: data).data)
+                self.upcomingGames = Array((try? JSONDecoder().decode(UpcomingGameRes.self, from: data).data) ?? [])
                 print(String(decoding: data, as: UTF8.self))
                 c.resume()
             }
@@ -92,7 +92,7 @@ class DataManager: ObservableObject {
         }
         
         // Filtering By Price Point
-        toBeFiltered = toBeFiltered.filter { s in self.pricePoints.contains(where: { $0.range.contains(s.price) }) }
+        toBeFiltered = toBeFiltered.filter { s in self.pricePoints == nil || pricePoints?.range.contains(s.price) == true }
         
         // Filtering By Text
         toBeFiltered = toBeFiltered.filter({ $0.name.contains(filterText) || filterText.isEmpty })

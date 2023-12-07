@@ -197,7 +197,7 @@ struct GameCell<G: Game>: View {
                             .font(.system(size: 12))
                             .fixedSize()
                             .padding(5)
-                            .background(Color("purple"))
+                            .background(Color("purple_color"))
                         
                         Text("$\(g.normalPrice)")
                             .font(.system(size: 11))

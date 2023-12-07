@@ -39,40 +39,45 @@ struct UpcomingView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack {
                         Divider()
-                        ForEach(data.filtered(array: data.upcomingGames), id: \.hashValue) { g in
-                            NavigationLink {
-                                SingleGameView(game: g.wrappedValue)
-                                    .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
-                            } label: {
-                                HStack {
-                                    KFImage(URL(string: g.wrappedValue.imageURL))
-                                        .resizable()
-                                        .frame(width: 40, height: 40)
-                                        .clipShape(Circle())
-                                    
-                                    VStack(alignment: .leading) {
-                                        Text(g.wrappedValue.name)
+                        if data.filtered(array: data.upcomingGames).isEmpty {
+                            Text("No Results")
+                        } else {
+                            ForEach(data.filtered(array: data.upcomingGames), id: \.hashValue) { g in
+                                NavigationLink {
+                                    SingleGameView(game: g.wrappedValue)
+                                        .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+                                } label: {
+                                    HStack {
+                                        KFImage(URL(string: g.wrappedValue.imageURL))
+                                            .resizable()
+                                            .frame(width: 40, height: 40)
+                                            .clipShape(Circle())
                                         
-                                        if let s = g.wrappedValue as? UpcomingGameInfo {
-                                            HStack {
-                                                Text("Coming")
-                                                Text(s.releaseD, style: .date)
+                                        VStack(alignment: .leading) {
+                                            Text(g.wrappedValue.name)
+                                            
+                                            if let s = g.wrappedValue as? UpcomingGameInfo {
+                                                HStack {
+                                                    Text("Coming")
+                                                    Text(s.releaseD, style: .date)
+                                                }
+                                                .foregroundStyle(.gray)
+                                                .font(.system(size: 12))
                                             }
-                                            .foregroundStyle(.gray)
-                                            .font(.system(size: 12))
                                         }
+                                        .foregroundColor(.white)
+                                        
+                                        Spacer()
+                                        
+                                        Image(systemName: "chevron.right")
+                                            .imageScale(.large)
                                     }
-                                    .foregroundColor(.white)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .imageScale(.large)
+                                    .padding(8)
                                 }
-                                .padding(8)
+                                
+                                Divider()
                             }
-                            
-                            Divider()
+
                         }
                     }
                     .padding()
@@ -86,7 +91,7 @@ struct UpcomingView: View {
         }
         .onDisappear {
             data.filters = []
-            data.pricePoints = PriceLevel.allCases
+            data.pricePoints = nil
         }
     }
 }
