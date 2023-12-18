@@ -114,7 +114,7 @@ struct Filter: View {
 
 enum FilterType: String, Identifiable, CaseIterable {
     
-    /// Identifiable
+
     var id: String { rawValue }
     
     case mostPopular = "Most Popular"
@@ -128,7 +128,7 @@ enum FilterType: String, Identifiable, CaseIterable {
 
 enum PriceLevel: String, Identifiable, CaseIterable {
     
-    /// Identifiable
+   
     var id: String { rawValue }
     
     case low = "$"

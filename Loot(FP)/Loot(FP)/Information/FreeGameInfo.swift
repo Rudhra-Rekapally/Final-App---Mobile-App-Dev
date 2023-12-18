@@ -16,12 +16,12 @@ struct FreeGameInfo: Game, Codable {
     
     var releaseD: Date { releaseDate.iso8601withFractionalSeconds }
     
-    /// Game Protocol
+   
     var imageURL: String { thumbnail }
     var name: String { title }
     var rating: CGFloat
     
-    /// Making Price 0 Since The Game Is Free
+ 
     var price: CGFloat { 0 }
     
     init(from decoder: Decoder) throws {

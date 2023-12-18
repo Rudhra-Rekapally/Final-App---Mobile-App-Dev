@@ -2,7 +2,7 @@ import Foundation
 
 struct SaleGameInfo: Game, Codable {
     
-    /// Identifiable for Foreach Loops
+   
     var id: String { dealID }
     
     let internalName: String
@@ -28,7 +28,7 @@ struct SaleGameInfo: Game, Codable {
     var releaseD: Date { Date(timeIntervalSince1970: TimeInterval(releaseDate)) }
     var developer: String? = nil
     
-    /// Game Protocol For Search Page
+  
     var imageURL: String { thumb }
     var name: String { title }
     var rating: CGFloat

@@ -37,11 +37,11 @@ struct ContentView: View {
                         
                         Button {
                             print("clicked magnifying")
-//                            withAnimation { 
+
                             DispatchQueue.main.async {
                                 selection = 0
                             }
-//                            }
+
                         } label: {
                             Image(systemName: "magnifyingglass")
                                 .resizable()
@@ -54,11 +54,11 @@ struct ContentView: View {
                         
                         Button {
                             print("clicked house")
-//                            withAnimation { 
+
                             DispatchQueue.main.async {
                                 selection = 1
                             }
-//                            }
+
                         } label: {
                             Image(systemName: "house.fill")
                                 .resizable()
@@ -71,11 +71,11 @@ struct ContentView: View {
                         
                         Button {
                             print("clicked book")
-//                            withAnimation {
+
                             DispatchQueue.main.async {
                                 selection = 2
                             }
-//                            }
+
                         } label: {
                             Image(systemName: "book")
                                 .resizable()

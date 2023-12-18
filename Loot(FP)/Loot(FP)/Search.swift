@@ -81,7 +81,7 @@ struct Search: View {
                         }
                     }
                     
-                    // Making Room For Content Because Of Tab Bar
+                 
                     VStack { }.frame(height: 60)
                 }
             }

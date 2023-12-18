@@ -5,16 +5,16 @@ import SwiftUI
 
 class DataManager: ObservableObject {
     
-    /// The Different Filters
+    
     @Published var filters = [FilterType]()
     
-    /// The Selected Price Points (By Default All Of Them)
+  
     @Published var pricePoints: PriceLevel? = nil
     
-    /// Show The Filter View
+   
     @Published var showFilterView = false
     
-    /// All The Games For The Search Page
+ 
     var allGames: [any Game] { onSaleGames + freeGames + upcomingGames }
         
     @Published var onSaleGames = [SaleGameInfo]()
@@ -71,7 +71,7 @@ class DataManager: ObservableObject {
         
         var toBeFiltered = array
         
-        // Implementing The Filters
+ 
         filters.forEach { f in
             switch f {
             case .mostPopular:
@@ -90,11 +90,10 @@ class DataManager: ObservableObject {
                 break
             }
         }
-        
-        // Filtering By Price Point
+
         toBeFiltered = toBeFiltered.filter { s in self.pricePoints == nil || pricePoints?.range.contains(s.price) == true }
         
-        // Filtering By Text
+  
         toBeFiltered = toBeFiltered.filter({ $0.name.contains(filterText) || filterText.isEmpty })
         
         let up = toBeFiltered.filter { $0 as? UpcomingGameInfo != nil }.map { $0 as! UpcomingGameInfo }.removingDuplicates()
